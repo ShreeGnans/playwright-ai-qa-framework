@@ -357,3 +357,153 @@ test("CHK_010 - Verify successful order completion.", async ({
   );
   await expect(page).toHaveURL(/checkout-complete\.html/);
 });
+
+test("CHK_011 - Verify user can cancel checkout from overview page", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
+  const checkoutOverviewPage = new CheckoutOverviewPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+
+  await inventoryPage.openCart();
+  await cartPage.clickCheckout();
+
+  await checkoutPage.enterFirstName("Priya");
+  await checkoutPage.enterLastName("Kumar");
+  await checkoutPage.enterPostalCode("600001");
+  await checkoutPage.clickContinue();
+
+  await expect(page).toHaveURL(/checkout-step-two\.html/);
+
+  const itemTotal = await checkoutOverviewPage.getItemTotal();
+  const tax = await checkoutOverviewPage.getTax();
+  const total = await checkoutOverviewPage.getTotal();
+
+  if (itemTotal === null || tax === null || total === null) {
+    throw new Error("Checkout price details are missing");
+  }
+
+  const itemAmo = itemTotal.replace("Item total: ", "");
+  expect(itemAmo).toBe("$39.98");
+
+  const taxAmo = tax.replace("Tax: ", "");
+  expect(taxAmo).toBe("$3.20");
+
+  const totalAmo = total.replace("Total: ", "");
+  expect(totalAmo).toBe("$43.18");
+
+  // Convert extracted amounts into numbers
+  const itemAmount = Number(itemAmo.replace("$", ""));
+  const taxAmount = Number(taxAmo.replace("$", ""));
+  const finalAmount = Number(totalAmo.replace("$", ""));
+
+  console.log("Item Amount:", itemAmount);
+  console.log("Tax Amount:", taxAmount);
+  console.log("Final Amount:", finalAmount);
+
+  // Verify calculation
+  expect(itemAmount + taxAmount).toBeCloseTo(finalAmount, 2);
+  await checkoutOverviewPage.clickCancel();
+  await expect(page).toHaveURL(/inventory.html/);
+});
+
+test("CHK_012 - Verify checkout form validation for special characters", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
+
+  await inventoryPage.addBackpackToCart();
+
+  await inventoryPage.openCart();
+  await cartPage.clickCheckout();
+  await checkoutPage.enterFirstName("	@#$%");
+  await checkoutPage.enterLastName("Kumar");
+  await checkoutPage.enterPostalCode("600001");
+  await checkoutPage.clickContinue();
+  await expect(page).toHaveURL(/checkout-step-two\.html/);
+});
+
+test("CHK_013 - Verify checkout accepts leading and trailing spaces", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
+
+  await inventoryPage.addBackpackToCart();
+
+  await inventoryPage.openCart();
+  await cartPage.clickCheckout();
+  await checkoutPage.enterFirstName(" priya ");
+  await checkoutPage.enterLastName(" Kumar ");
+  await checkoutPage.enterPostalCode("600001");
+  await checkoutPage.clickContinue();
+  await expect(page).toHaveURL(/checkout-step-two\.html/);
+});
+
+test("CHK_014 - Verify checkout with numeric values in First Name and Last Name", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
+
+  await inventoryPage.addBackpackToCart();
+
+  await inventoryPage.openCart();
+  await cartPage.clickCheckout();
+  await checkoutPage.enterFirstName("12345");
+  await checkoutPage.enterLastName("6789");
+  await checkoutPage.enterPostalCode("600001");
+  await checkoutPage.clickContinue();
+  await expect(page).toHaveURL(/checkout-step-two\.html/);
+});
+
+test("CHK_015 - Verify checkout with maximum-length input", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+  const checkoutPage = new CheckoutPage(page);
+
+  await inventoryPage.addBackpackToCart();
+
+  await inventoryPage.openCart();
+  await cartPage.clickCheckout();
+  await checkoutPage.enterFirstName("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  await checkoutPage.enterLastName("ABCDEFGHIJKLMNOPQRSTUVWXYZ");
+  await checkoutPage.enterPostalCode("600001");
+  await checkoutPage.clickContinue();
+  await expect(page).toHaveURL(/checkout-step-two\.html/);
+});

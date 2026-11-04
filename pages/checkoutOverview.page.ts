@@ -8,6 +8,7 @@ export class CheckoutOverviewPage {
   private tax: Locator;
   private total: Locator;
   private finishButton: Locator;
+  private cancelButton: Locator;
 
   constructor(page: Page) {
     this.productName = page.locator('[data-test="inventory-item-name"]');
@@ -17,6 +18,7 @@ export class CheckoutOverviewPage {
     this.tax = page.locator('[data-test = "tax-label"]');
     this.total = page.locator('[data-test="total-label"]');
     this.finishButton = page.locator('[data-test="finish"]');
+    this.cancelButton = page.locator('[data-test="cancel"]');
   }
 
   async getProductName(): Promise<string | null> {
@@ -43,5 +45,8 @@ export class CheckoutOverviewPage {
 
   async clickFinish(): Promise<void> {
     await this.finishButton.click();
+  }
+  async clickCancel(): Promise<void> {
+    await this.cancelButton.click();
   }
 }
