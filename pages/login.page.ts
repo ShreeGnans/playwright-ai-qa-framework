@@ -20,4 +20,8 @@ export class LoginPage {
     await this.enterPassword(password);
     await this.clickLogin();
   }
+  async logout(): Promise<void> {
+    await this.page.locator("#react-burger-menu-btn").click();
+    await this.page.locator("#logout_sidebar_link").click();
+  }
 }

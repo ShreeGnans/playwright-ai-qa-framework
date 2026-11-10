@@ -178,3 +178,147 @@ test("ACART_006 -Verify product quantities in the cart.", async ({
   expect(backPackQuantity).toBe("1");
   expect(bikeLightQuantity).toBe("1");
 });
+
+test("ACART_007 -Verify cart contents persist after page refresh", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.openCart();
+  const updatedProductName = await cartPage.getProductNames();
+
+  expect(updatedProductName).toEqual([
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+  ]);
+  await page.reload();
+  const updatedProductNameRefresh = await cartPage.getProductNames();
+
+  expect(updatedProductNameRefresh).toEqual([
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+  ]);
+  const backPackQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Backpack",
+  );
+  const bikeLightQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Bike Light",
+  );
+  expect(backPackQuantity).toBe("1");
+  expect(bikeLightQuantity).toBe("1");
+  await expect(inventoryPage.getCartBadge()).toHaveText("2");
+});
+
+test("ACART_008 -Verify cart contents after logout and login", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.openCart();
+  const updatedProductName = await cartPage.getProductNames();
+
+  expect(updatedProductName).toEqual([
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+  ]);
+  await loginPage.logout();
+  await expect(page).toHaveURL("https://www.saucedemo.com/");
+  await loginPage.login("standard_user", "secret_sauce");
+  await inventoryPage.openCart();
+  const updatedProductNameRefresh = await cartPage.getProductNames();
+  expect(updatedProductNameRefresh).toEqual([
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+  ]);
+  const backPackQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Backpack",
+  );
+  const bikeLightQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Bike Light",
+  );
+  expect(backPackQuantity).toBe("1");
+  expect(bikeLightQuantity).toBe("1");
+  await expect(inventoryPage.getCartBadge()).toHaveText("2");
+});
+
+test("ACART_009 -Verify cart state after removing a product and refreshing the page", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.openCart();
+  await inventoryPage.removeBackpackFromCart();
+
+  const updatedProductName = await cartPage.getProductNames();
+
+  expect(updatedProductName).toEqual(["Sauce Labs Bike Light"]);
+  await page.reload();
+  const updatedProductNameRefresh = await cartPage.getProductNames();
+
+  expect(updatedProductNameRefresh).toEqual(["Sauce Labs Bike Light"]);
+  const bikeLightQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Bike Light",
+  );
+  expect(bikeLightQuantity).toBe("1");
+  await expect(inventoryPage.getCartBadge()).toHaveText("1");
+});
+
+test("ACART_010 -Verify cart contents after navigating between pages", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.openCart();
+  const updatedProductNameRefresh = await cartPage.getProductNames();
+
+  expect(updatedProductNameRefresh).toEqual(["Sauce Labs Backpack"]);
+  await cartPage.clickContinueShopping();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.openCart();
+  const updatedProductName = await cartPage.getProductNames();
+
+  expect(updatedProductName).toEqual([
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+  ]);
+  const backPackQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Backpack",
+  );
+  const bikeLightQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Bike Light",
+  );
+  expect(backPackQuantity).toBe("1");
+  expect(bikeLightQuantity).toBe("1");
+  await expect(inventoryPage.getCartBadge()).toHaveText("2");
+});
