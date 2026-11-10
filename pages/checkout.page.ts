@@ -7,6 +7,7 @@ export class CheckoutPage {
   private postalCodeInput: Locator;
   private continueButton: Locator;
   private errorMessage: Locator;
+  private checkOutInformationCancel: Locator;
 
   constructor(page: Page) {
     this.checkoutTitle = page.locator(".title");
@@ -15,6 +16,7 @@ export class CheckoutPage {
     this.postalCodeInput = page.locator('[data-test="postalCode"]');
     this.continueButton = page.locator('[data-test="continue"]');
     this.errorMessage = page.locator('[data-test="error"]');
+    this.checkOutInformationCancel = page.locator('[data-test="cancel"]');
   }
 
   async getCheckoutTitle(): Promise<string | null> {
@@ -37,5 +39,9 @@ export class CheckoutPage {
   }
   getErrorMessage(): Locator {
     return this.errorMessage;
+  }
+
+  async clickCancelCheckOutOverview(): Promise<void> {
+    await this.checkOutInformationCancel.click();
   }
 }
