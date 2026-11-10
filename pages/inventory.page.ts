@@ -7,6 +7,7 @@ export class InventoryPage {
   private productPrices: Locator;
   private addBackpackButton: Locator;
   private addBikeLightButton: Locator;
+  private addBoltTshirtButton: Locator;
   private removeBackpackButton: Locator;
   private cartBadge: Locator;
   private cartIcon: Locator;
@@ -24,6 +25,9 @@ export class InventoryPage {
 
     this.addBikeLightButton = page.locator(
       '[data-test="add-to-cart-sauce-labs-bike-light"]',
+    );
+    this.addBoltTshirtButton = page.locator(
+      '[data-test="add-to-cart-sauce-labs-bolt-t-shirt"]',
     );
 
     this.removeBackpackButton = page.locator(
@@ -57,6 +61,9 @@ export class InventoryPage {
 
   async addBikeLightToCart(): Promise<void> {
     await this.addBikeLightButton.click();
+  }
+  async addBoltTshirtToCart(): Promise<void> {
+    await this.addBoltTshirtButton.click();
   }
 
   async removeBackpackFromCart(): Promise<void> {

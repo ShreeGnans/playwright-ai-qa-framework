@@ -7,6 +7,9 @@ export class CartPage {
   private checkoutButton: Locator;
   private productNames: Locator;
   private removeBackpack: Locator;
+  private continueButton: Locator;
+  private removeBikeLight: Locator;
+  private removeBoltTshirt: Locator;
 
   constructor(page: Page) {
     this.cartTitle = page.locator(".title");
@@ -16,6 +19,13 @@ export class CartPage {
     this.productNames = page.locator(".inventory_item_name");
     this.removeBackpack = page.locator(
       '[data-test="remove-sauce-labs-backpack"]',
+    );
+    this.continueButton = page.locator('[data-test="continue-shopping"]');
+    this.removeBikeLight = page.locator(
+      '[data-test="remove-sauce-labs-bike-light"]',
+    );
+    this.removeBoltTshirt = page.locator(
+      '[data-test="remove-sauce-labs-bolt-t-shirt"]',
     );
   }
 
@@ -40,5 +50,14 @@ export class CartPage {
 
   async removeBackpackButton(): Promise<void> {
     return await this.removeBackpack.click();
+  }
+  async removeBikeLightButton(): Promise<void> {
+    return await this.removeBikeLight.click();
+  }
+  async removeBoltTshirtButton(): Promise<void> {
+    return await this.removeBoltTshirt.click();
+  }
+  async clickContinueShopping(): Promise<void> {
+    return this.continueButton.click();
   }
 }
