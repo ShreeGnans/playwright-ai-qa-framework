@@ -10,6 +10,7 @@ export class CartPage {
   private continueButton: Locator;
   private removeBikeLight: Locator;
   private removeBoltTshirt: Locator;
+  private page: Page;
 
   constructor(page: Page) {
     this.cartTitle = page.locator(".title");
@@ -27,6 +28,7 @@ export class CartPage {
     this.removeBoltTshirt = page.locator(
       '[data-test="remove-sauce-labs-bolt-t-shirt"]',
     );
+    this.page = page;
   }
 
   async getCartTitle(): Promise<string | null> {
@@ -39,6 +41,22 @@ export class CartPage {
 
   async getProductPrice(): Promise<string | null> {
     return await this.productPrice.textContent();
+  }
+
+  async getProductPrices(productName: string): Promise<string | null> {
+    return await this.page
+      .locator(".cart_item")
+      .filter({ hasText: productName })
+      .locator("button")
+      .textContent();
+  }
+
+  async getProductQuantity(productName: string): Promise<string | null> {
+    return await this.page
+      .locator(".cart_item")
+      .filter({ hasText: productName })
+      .locator(".cart_quantity")
+      .textContent();
   }
 
   async clickCheckout(): Promise<void> {

@@ -91,4 +91,18 @@ export class InventoryPage {
       .filter({ hasText: productName });
     await product.getByRole("button", { name: "Add to cart " }).click();
   }
+  async getProductButtonText(productName: string): Promise<string | null> {
+    return await this.page
+      .locator(".inventory_item")
+      .filter({ hasText: productName })
+      .locator("button")
+      .textContent();
+  }
+  async getProductPrice(productName: string): Promise<string | null> {
+    return await this.page
+      .locator(".inventory_item")
+      .filter({ hasText: productName })
+      .locator("button")
+      .textContent();
+  }
 }

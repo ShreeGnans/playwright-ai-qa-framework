@@ -85,3 +85,96 @@ test("ACART_003 -Verify cart behaviour after removing all products.", async ({
   await cartPage.removeBoltTshirtButton();
   await expect(inventoryPage.isCartBadgeHidden()).toBeTruthy();
 });
+
+test("ACART_004 -Verify that cart contents and badge count remain accurate when adding and removing products while navigating between Inventory and Cart.", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.openCart();
+  await expect(inventoryPage.getCartBadge()).toHaveText("1");
+  await cartPage.clickContinueShopping();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.openCart();
+  await expect(inventoryPage.getCartBadge()).toHaveText("2");
+  await cartPage.removeBackpackButton();
+  await cartPage.clickContinueShopping();
+  const backpackButton = await inventoryPage.getProductButtonText(
+    "Sauce Labs Backpack",
+  );
+  expect(backpackButton).toBe("Add to cart");
+  const bikeLightButton = await inventoryPage.getProductButtonText(
+    "Sauce Labs Bike Light",
+  );
+  expect(bikeLightButton).toBe("Remove");
+  await inventoryPage.openCart();
+  await expect(inventoryPage.getCartBadge()).toHaveText("1");
+});
+
+test("ACART_005 -Verify cart product prices match inventory product prices.", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+  const backpackInventoryPrice = await inventoryPage.getProductPrice(
+    "Sauce Labs Backpack",
+  );
+  const bikelightInventoryPrice = await inventoryPage.getProductPrice(
+    "Sauce Labs Bike Light",
+  );
+  await inventoryPage.openCart();
+  const backpackCartPrice = await cartPage.getProductPrices(
+    "Sauce Labs Backpack",
+  );
+
+  const bikeLightCartPrice = await cartPage.getProductPrices(
+    "Sauce Labs Bike Light",
+  );
+  expect(backpackCartPrice).toBe(backpackInventoryPrice);
+  expect(bikeLightCartPrice).toBe(bikelightInventoryPrice);
+  const cartProducts = await cartPage.getProductNames();
+
+  expect(cartProducts).toEqual([
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+  ]);
+});
+
+test("ACART_006 -Verify product quantities in the cart.", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+
+  await loginPage.login("standard_user", "secret_sauce");
+
+  const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
+
+  await inventoryPage.addBackpackToCart();
+  await inventoryPage.addBikeLightToCart();
+  await inventoryPage.openCart();
+  const backPackQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Backpack",
+  );
+  const bikeLightQuantity = await cartPage.getProductQuantity(
+    "Sauce Labs Bike Light",
+  );
+  expect(backPackQuantity).toBe("1");
+  expect(bikeLightQuantity).toBe("1");
+});
