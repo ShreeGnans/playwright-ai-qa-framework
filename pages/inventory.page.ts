@@ -12,6 +12,8 @@ export class InventoryPage {
   private cartBadge: Locator;
   private cartIcon: Locator;
   private page: Page;
+  private sortingDropdown: Locator;
+  private clickBackpack: Locator;
 
   constructor(page: Page) {
     this.productsTitle = page.locator(".title");
@@ -37,6 +39,10 @@ export class InventoryPage {
     this.cartBadge = page.locator(".shopping_cart_badge");
     this.cartIcon = page.locator(".shopping_cart_link");
     this.page = page;
+    this.sortingDropdown = page.locator('[data-test="product-sort-container"]');
+    this.clickBackpack = page.locator(
+      '[data-test = "inventory-item-sauce-labs-backpack-img"]',
+    );
   }
 
   async getProductsTitle(): Promise<string | null> {
@@ -57,6 +63,9 @@ export class InventoryPage {
 
   async addBackpackToCart(): Promise<void> {
     await this.addBackpackButton.click();
+  }
+  async addBackpackClickButton(): Promise<void> {
+    await this.clickBackpack.click();
   }
 
   async addBikeLightToCart(): Promise<void> {
@@ -104,5 +113,11 @@ export class InventoryPage {
       .filter({ hasText: productName })
       .locator("button")
       .textContent();
+  }
+  async sortProducts(sortOption: string): Promise<void> {
+    await this.sortingDropdown.selectOption(sortOption);
+  }
+  async getSelectedSortOption(): Promise<string | null> {
+    return await this.sortingDropdown.inputValue();
   }
 }
