@@ -114,26 +114,33 @@ test("INV_006 - Verify Remove from Cart functionality", async ({
   await expect(inventoryPage.getCartBadge()).toBeHidden();
 });
 
-// INV_007 - Verify Cart Page
 test("INV_007 - Verify Cart Page", async ({ page, loginPage }) => {
   await page.goto("https://www.saucedemo.com/");
+
   await loginPage.login("standard_user", "secret_sauce");
 
   const inventoryPage = new InventoryPage(page);
+  const cartPage = new CartPage(page);
 
+  // Add product to cart
   await inventoryPage.addBackpackToCart();
 
+  await expect(inventoryPage.getCartBadge()).toHaveText("1");
+
+  // Navigate to cart
   await inventoryPage.openCart();
 
   await expect(page).toHaveURL(/cart\.html/);
 
-  const cartPage = new CartPage(page);
+  // Verify cart page heading
+  await expect(page.locator(".title")).toHaveText("Your Cart");
 
-  const title = await cartPage.getCartTitle();
-  expect(title).toBe("Your Cart");
+  // Verify product in cart
+  await expect(page.locator(".cart_item")).toHaveCount(1);
 
   const productName = await cartPage.getProductName();
-  expect(productName).toBe("Sauce Labs Backpack");
+
+  expect(productName?.trim()).toBe("Sauce Labs Backpack");
 });
 
 // INV_008 - Verify Product Price in Cart
@@ -147,7 +154,9 @@ test("INV_008 - Verify Product Price in Cart", async ({ page, loginPage }) => {
 
   const inventoryPrices = await inventoryPage.getProductPrices();
 
-  const backpackPrice = inventoryPrices[0];
+  const backpackPrice = await inventoryPage.getProductPrice(
+    "Sauce Labs Backpack",
+  );
 
   await inventoryPage.addBackpackToCart();
   await inventoryPage.openCart();

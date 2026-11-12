@@ -15,8 +15,8 @@ export class CartPage {
   constructor(page: Page) {
     this.cartTitle = page.locator(".title");
     this.productName = page.locator(".inventory_item_name");
-    this.productPrice = page.locator(".inventory_item_price");
     this.checkoutButton = page.locator('[data-test="checkout"]');
+    this.productPrice = page.locator(".cart_item .inventory_item_price");
     this.productNames = page.locator(".inventory_item_name");
     this.removeBackpack = page.locator(
       '[data-test="remove-sauce-labs-backpack"]',
@@ -32,22 +32,35 @@ export class CartPage {
   }
 
   async getCartTitle(): Promise<string | null> {
-    return await this.cartTitle.textContent();
+    return await this.page.locator(".title").textContent();
   }
 
   async getProductName(): Promise<string | null> {
-    return await this.productName.textContent();
+    return await this.page
+      .locator(".cart_item .inventory_item_name")
+      .first()
+      .textContent();
   }
-
   async getProductPrice(): Promise<string | null> {
     return await this.productPrice.textContent();
   }
 
+  // async getProductPrices(productName: string): Promise<string | null> {
+  //   return await this.page
+  //     .locator(".cart_item")
+  //     .filter({ hasText: productName })
+  //     .locator("button")
+  //     .textContent();
+  // }
   async getProductPrices(productName: string): Promise<string | null> {
     return await this.page
       .locator(".cart_item")
-      .filter({ hasText: productName })
-      .locator("button")
+      .filter({
+        has: this.page.locator(".inventory_item_name", {
+          hasText: productName,
+        }),
+      })
+      .locator(".inventory_item_price")
       .textContent();
   }
 
@@ -62,10 +75,12 @@ export class CartPage {
   async clickCheckout(): Promise<void> {
     await this.checkoutButton.click();
   }
-  async getProductNames(): Promise<string[]> {
-    return await this.productNames.allTextContents();
-  }
 
+  async getProductNames(): Promise<string[]> {
+    return await this.page
+      .locator(".cart_item .inventory_item_name")
+      .allTextContents();
+  }
   async removeBackpackButton(): Promise<void> {
     return await this.removeBackpack.click();
   }

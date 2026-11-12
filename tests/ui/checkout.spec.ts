@@ -520,18 +520,33 @@ test("CHK_016 - Verify checkout with an empty cart", async ({
   const cartPage = new CartPage(page);
   const checkoutPage = new CheckoutPage(page);
   const checkoutOverviewPage = new CheckoutOverviewPage(page);
+
   await expect(page).toHaveURL(/inventory.html/);
+
+  // Navigate to cart
   await inventoryPage.openCart();
-  const title = await cartPage.getCartTitle();
-  expect(title).toBe("Your Cart");
+
+  await expect(page).toHaveURL(/cart.html/);
+
+  // Verify cart title and empty cart
+  await expect(page.locator(".title")).toHaveText("Your Cart");
   await expect(page.locator(".cart_item")).toHaveCount(0);
+
+  // Proceed to checkout with empty cart
   await cartPage.clickCheckout();
+
   await expect(page).toHaveURL(/checkout-step-one\.html/);
+
+  // Enter checkout information
   await checkoutPage.enterFirstName("Priya");
   await checkoutPage.enterLastName("Kumar");
   await checkoutPage.enterPostalCode("600001");
+
   await checkoutPage.clickContinue();
+
   await expect(page).toHaveURL(/checkout-step-two\.html/);
+
+  // Verify zero item total, tax and final total
   const itemTotal = await checkoutOverviewPage.getItemTotal();
   const tax = await checkoutOverviewPage.getTax();
   const total = await checkoutOverviewPage.getTotal();
@@ -540,30 +555,28 @@ test("CHK_016 - Verify checkout with an empty cart", async ({
     throw new Error("Checkout price details are missing");
   }
 
-  const itemAmo = itemTotal.replace("Item total: ", "");
-  expect(itemAmo).toBe("$0");
+  const itemAmountText = itemTotal.replace("Item total: ", "");
+  const taxAmountText = tax.replace("Tax: ", "");
+  const totalAmountText = total.replace("Total: ", "");
 
-  const taxAmo = tax.replace("Tax: ", "");
-  expect(taxAmo).toBe("$0.00");
+  expect(itemAmountText).toBe("$0");
+  expect(taxAmountText).toBe("$0.00");
+  expect(totalAmountText).toBe("$0.00");
 
-  const totalAmo = total.replace("Total: ", "");
-  expect(totalAmo).toBe("$0.00");
+  // Verify price calculation
+  const itemAmount = Number(itemAmountText.replace("$", ""));
+  const taxAmount = Number(taxAmountText.replace("$", ""));
+  const finalAmount = Number(totalAmountText.replace("$", ""));
 
-  // Convert extracted amounts into numbers
-  const itemAmount = Number(itemAmo.replace("$", ""));
-  const taxAmount = Number(taxAmo.replace("$", ""));
-  const finalAmount = Number(totalAmo.replace("$", ""));
-
-  console.log("Item Amount:", itemAmount);
-  console.log("Tax Amount:", taxAmount);
-  console.log("Final Amount:", finalAmount);
-
-  // Verify calculation
   expect(itemAmount + taxAmount).toBeCloseTo(finalAmount, 2);
+
+  // Finish checkout
   await checkoutOverviewPage.clickFinish();
+
   await expect(page.locator(".complete-header")).toHaveText(
     "Thank you for your order!",
   );
+
   await expect(page).toHaveURL(/checkout-complete\.html/);
 });
 

@@ -111,7 +111,7 @@ export class InventoryPage {
     return await this.page
       .locator(".inventory_item")
       .filter({ hasText: productName })
-      .locator("button")
+      .locator(".inventory_item_price")
       .textContent();
   }
   async sortProducts(sortOption: string): Promise<void> {
