@@ -27,4 +27,11 @@ export const loginTestData: LoginTestData[] = [
     expectedError: "Epic sadface: Password is required",
     description: "Verify empty password validation",
   },
+  {
+    testId: "SD_LOGIN_005",
+    username: "locked_out_user",
+    password: "secret_sauce",
+    expectedError: "Epic sadface: Sorry, this user has been locked out.",
+    description: "Verify login validation for locked-out user",
+  },
 ];

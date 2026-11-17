@@ -203,6 +203,63 @@ test("INV_010 - Verify Dynamic Add to Cart", async ({ page, loginPage }) => {
   await expect(inventoryPage.getCartBadge()).toHaveText("3");
 });
 
+test("INV_011 - Problem user inventory validation", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+  await loginPage.login("problem_user", "secret_sauce");
+  await expect(page).toHaveURL(/inventory.html/);
+
+  const inventoryPage = new InventoryPage(page);
+  const expectedProducts: string[] = [
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+    "Sauce Labs Bolt T-Shirt",
+    "Sauce Labs Fleece Jacket",
+    "Sauce Labs Onesie",
+    "Test.allTheThings() T-Shirt (Red)",
+  ];
+  await expect(page.locator(".inventory_item")).toHaveCount(6);
+  const actualProducts = await inventoryPage.getProductNames();
+  expect(actualProducts).toEqual(expectedProducts);
+  await expect(page.locator(".inventory_item img")).toHaveCount(6);
+  const actualImageSources = await inventoryPage.getProductImageSources();
+  console.log("Image Sources:", actualImageSources);
+  expect(actualImageSources).toHaveLength(6);
+  const uniqueImageSources = new Set(actualImageSources);
+
+  expect(uniqueImageSources.size).toBe(1);
+});
+test("INV_012 - Standard user inventory validation", async ({
+  page,
+  loginPage,
+}) => {
+  await page.goto("https://www.saucedemo.com/");
+  await loginPage.login("problem_user", "secret_sauce");
+  await expect(page).toHaveURL(/inventory.html/);
+
+  const inventoryPage = new InventoryPage(page);
+  const expectedProducts: string[] = [
+    "Sauce Labs Backpack",
+    "Sauce Labs Bike Light",
+    "Sauce Labs Bolt T-Shirt",
+    "Sauce Labs Fleece Jacket",
+    "Sauce Labs Onesie",
+    "Test.allTheThings() T-Shirt (Red)",
+  ];
+  await expect(page.locator(".inventory_item")).toHaveCount(6);
+  const actualProducts = await inventoryPage.getProductNames();
+  expect(actualProducts).toEqual(expectedProducts);
+  await expect(page.locator(".inventory_item img")).toHaveCount(6);
+  const actualImageSources = await inventoryPage.getProductImageSources();
+  console.log("Image Sources:", actualImageSources);
+  expect(actualImageSources).toHaveLength(6);
+  const uniqueImageSources = new Set(actualImageSources);
+
+  expect(uniqueImageSources.size).toBe(1);
+});
+
 test("AINV_001 - Verify all inventory sorting options", async ({
   page,
   loginPage,

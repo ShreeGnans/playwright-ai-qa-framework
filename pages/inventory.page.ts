@@ -14,6 +14,7 @@ export class InventoryPage {
   private page: Page;
   private sortingDropdown: Locator;
   private clickBackpack: Locator;
+  private productImages: Locator;
 
   constructor(page: Page) {
     this.productsTitle = page.locator(".title");
@@ -43,6 +44,7 @@ export class InventoryPage {
     this.clickBackpack = page.locator(
       '[data-test = "inventory-item-sauce-labs-backpack-img"]',
     );
+    this.productImages = page.locator(".inventory_item_img[src]");
   }
 
   async getProductsTitle(): Promise<string | null> {
@@ -119,5 +121,10 @@ export class InventoryPage {
   }
   async getSelectedSortOption(): Promise<string | null> {
     return await this.sortingDropdown.inputValue();
+  }
+  async getProductImageSources(): Promise<string[]> {
+    return await this.productImages.evaluateAll((images) =>
+      images.map((image) => (image as HTMLImageElement).src),
+    );
   }
 }
